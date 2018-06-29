@@ -1,18 +1,20 @@
-export function translate(options) {
-	var through = require('through2');
-	var pofileLib = require('pofile');
-	var cheerio = require('cheerio');
-	var fs = require('fs');
+import through from 'through2';
+import fs from 'fs';
+import pofile from 'pofile';
+import cheerio from 'cheerio';
 
-	var data = fs.readFileSync('../api/locales/en/LC_MESSAGES/messages.po', 'utf-8')
-	var pofile = pofileLib.parse(data);
-	var msgstrByMsgid = {};
-		pofile.items.forEach(function(item){
-			if (item.msgstr[0] == ""){
-				return;
-			}
-			msgstrByMsgid[item.msgid] = item.msgstr[0];
-		});
+
+export function translate(options) {
+	const data = fs.readFileSync('../api/locales/en/LC_MESSAGES/messages.po', 'utf-8')
+	const po = pofile.parse(data);
+	let msgstrById = {};
+
+	po.items.forEach(function(item){
+		if (item.msgstr[0] === ""){
+			return;
+		}
+		msgstrById[item.msgid] = item.msgstr[0];
+	});
 
 	return through.obj(function (file, enc, cb) {
 		var fileContents = file.contents.toString();
@@ -27,7 +29,7 @@ export function translate(options) {
 					//validni stav - element nema obsah, napr. <input>
 					return;
 				}
-				var translatedText = msgstrByMsgid[elementText];
+				var translatedText = msgstrById[elementText];
 				if (translatedText === undefined){
 					throw "Chybi zdrojove stringy v .po souboru nebo je chyba ve parsovani whitespacu!\n" +
 						"elementText = '" + elementText + "'\ntranslatedText = '" + translatedText + "'";
@@ -42,7 +44,7 @@ export function translate(options) {
 
 			ATTRIBUTES_TO_TRANSLATE.forEach(function (attrName){
 				if (hasAttr(element, attrName)) {
-					translateAttr(element, attrName, msgstrByMsgid);
+					translateAttr(element, attrName, msgstrById);
 				}
 			});
 
@@ -70,4 +72,4 @@ export function translate(options) {
 	}, function (cb) {
 		cb();
 	});
-};
+}

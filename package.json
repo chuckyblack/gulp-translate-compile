@@ -7,6 +7,8 @@
   "author": "Jaromír Pufler <jaromir.pufler@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "cheerio": "^1.0.0-rc.2",
+    "pofile": "^1.0.11",
     "through2": "^2.0.3"
   }
 }
