@@ -1,0 +1,12 @@
+{
+  "name": "gulp-i18n-po-translate",
+  "version": "1.0.0",
+  "description": "Compiles html templates and javascript files using po translation file.",
+  "main": "src/index.js",
+  "repository": "https://github.com/chuckyblack/gulp-i18n-po-translate",
+  "author": "Jaromír Pufler <jaromir.pufler@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "through2": "^2.0.3"
+  }
+}

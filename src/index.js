@@ -1,0 +1,2 @@
+export {translate} from 'translate';
+
