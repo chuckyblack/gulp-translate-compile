@@ -1,2 +1,0 @@
-export {translate} from 'translate';
-
