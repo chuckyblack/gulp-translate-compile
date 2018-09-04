@@ -10,7 +10,9 @@ class Translator {
 		this.throwOnMissingTranslation = throwOnMissingTranslation;
 		this.throwOnEmptyTranslation = throwOnEmptyTranslation;
 		this.msgStrById = {};
-		this.loadPoFile(path);
+		if (path) {
+			this.loadPoFile(path);
+		}
 	}
 
 	loadPoFile(path) {
@@ -32,6 +34,13 @@ class Translator {
 		});
 		$("*").each((index, element) => {
 			element = $(element);
+			if (!this.path) {
+				// no translation file, remove marking attribut only
+				if (this.hasAttr(element, "i18n")) {
+					element.removeAttr("i18n");
+				}
+				return;
+			}
 			if (this.hasAttr(element, "i18n")) {
 				const elementText = this.normalizeText(element.html());
 				if (elementText === "") {
