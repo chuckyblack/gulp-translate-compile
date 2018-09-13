@@ -28,6 +28,18 @@ class Translator {
 	}
 
 	translate(file) {
+		const ext = file.relative.split('.').pop();
+		switch (ext) {
+			case "html":
+				return this.translateHtml(file);
+			case "js":
+				return this.translateJs(file);
+		}
+		// unknown file type, do nothing
+		return file.contents.toString();
+	}
+
+	translateHtml(file) {
 		const content = file.contents.toString();
 		const $ = cheerio.load(content, {
 			decodeEntities: false
@@ -59,6 +71,19 @@ class Translator {
 			});
 		});
 		return $.html();
+	}
+
+	translateJs(file) {
+		let content = file.contents.toString();
+		["'", '"', "`"].forEach((char) => {
+			content = content.replace(new RegExp("_\\(\\s*" + char + "([^" + char + "\\\\]*(?:\\\\.[^" + char + "\\\\]*)*)" + char + "\\s*\\)", "g"), (match, text) => {
+				if (this.path) {
+					text = this.getTranslatedText(file, this.normalizeText(text))
+				}
+				return char + text + char;
+			});
+		});
+		return content;
 	}
 
 	getTranslatedText(file, original) {
