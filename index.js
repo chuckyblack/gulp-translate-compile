@@ -10,7 +10,9 @@ class Translator {
 		this.throwOnMissingTranslation = throwOnMissingTranslation;
 		this.throwOnEmptyTranslation = throwOnEmptyTranslation;
 		this.msgStrById = {};
-		this.loadPoFile(path);
+		if (path) {
+			this.loadPoFile(path);
+		}
 	}
 
 	loadPoFile(path) {
@@ -26,12 +28,31 @@ class Translator {
 	}
 
 	translate(file) {
+		const ext = file.relative.split('.').pop();
+		switch (ext) {
+			case "html":
+				return this.translateHtml(file);
+			case "js":
+				return this.translateJs(file);
+		}
+		// unknown file type, do nothing
+		return file.contents.toString();
+	}
+
+	translateHtml(file) {
 		const content = file.contents.toString();
 		const $ = cheerio.load(content, {
 			decodeEntities: false
 		});
 		$("*").each((index, element) => {
 			element = $(element);
+			if (!this.path) {
+				// no translation file, remove marking attribut only
+				if (this.hasAttr(element, "i18n")) {
+					element.removeAttr("i18n");
+				}
+				return;
+			}
 			if (this.hasAttr(element, "i18n")) {
 				const elementText = this.normalizeText(element.html());
 				if (elementText === "") {
@@ -50,6 +71,19 @@ class Translator {
 			});
 		});
 		return $.html();
+	}
+
+	translateJs(file) {
+		let content = file.contents.toString();
+		["'", '"', "`"].forEach((char) => {
+			content = content.replace(new RegExp("_\\(\\s*" + char + "([^" + char + "\\\\]*(?:\\\\.[^" + char + "\\\\]*)*)" + char + "\\s*\\)", "g"), (match, text) => {
+				if (this.path) {
+					text = this.getTranslatedText(file, this.normalizeText(text))
+				}
+				return char + text + char;
+			});
+		});
+		return content;
 	}
 
 	getTranslatedText(file, original) {
