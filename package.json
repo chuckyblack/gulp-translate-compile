@@ -1,14 +1,25 @@
 {
-  "name": "gulp-i18n-po-translate",
-  "version": "1.1.0",
-  "description": "Compiles html templates and javascript files using po translation file.",
-  "main": "index.js",
-  "repository": "https://github.com/chuckyblack/gulp-i18n-po-translate",
-  "author": "Jaromír Pufler <jaromir.pufler@gmail.com>",
-  "license": "MIT",
-  "dependencies": {
-    "cheerio": "^1.0.0-rc.2",
-    "pofile": "^1.0.11",
-    "through2": "^2.0.3"
-  }
+	"name": "gulp-i18n-po-translate",
+	"version": "1.1.0",
+	"description": "Compiles html templates and javascript files using po translation file.",
+	"main": "index.js",
+	"repository": "https://github.com/chuckyblack/gulp-i18n-po-translate",
+	"author": "Jaromír Pufler <jaromir.pufler@gmail.com>",
+	"license": "MIT",
+	"dependencies": {
+		"cheerio": "^1.0.0-rc.2",
+		"pofile": "^1.0.11",
+		"through2": "^2.0.3",
+		"vinyl": "^2.2.0"
+	},
+	"devDependencies": {
+		"babel-core": "^6.26.3",
+		"babel-jest": "^23.6.0",
+		"babel-preset-env": "^1.7.0",
+		"jest": "^23.6.0",
+		"regenerator-runtime": "^0.12.1"
+	},
+	"scripts": {
+		"test": "jest"
+	}
 }

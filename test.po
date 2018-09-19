@@ -1,0 +1,29 @@
+#: helloworld:9
+msgid "ahoj světe!"
+msgstr "hello world!"
+
+#: helloworld:9
+msgid "ahoj <strong>krásný</strong> světe!"
+msgstr "hello <strong>beautiful</strong> world!"
+
+#: helloworld:9
+msgid "Příliš žluťoučký kůň úpěl ďábelské ódy."
+msgstr "Really hard to translate sentence."
+
+#: helloworld:9
+msgid "nějaký titulek"
+msgstr "some title"
+
+
+#: helloworld:9
+msgid "Nadpis 2"
+msgstr "Heading 2"
+
+
+#: helloworld:9
+msgid "Nadpis 3"
+msgstr "Heading 3"
+
+
+
+
