@@ -4,9 +4,10 @@ const pofile = require('pofile');
 const cheerio = require('cheerio');
 
 class Translator {
-	constructor(path, attributes, throwOnMissingTranslation, throwOnEmptyTranslation) {
+	constructor(path, attributes, extractTags, throwOnMissingTranslation, throwOnEmptyTranslation) {
 		this.path = path;
 		this.attributes = attributes;
+		this.extractTags = extractTags;
 		this.throwOnMissingTranslation = throwOnMissingTranslation;
 		this.throwOnEmptyTranslation = throwOnEmptyTranslation;
 		this.msgStrById = {};
@@ -48,12 +49,18 @@ class Translator {
 			element = $(element);
 			if (!this.path) {
 				// no translation file, remove marking attribut only
-				if (this.hasAttr(element, "i18n")) {
-					element.removeAttr("i18n");
+				const attrs = element[0].attribs;
+				for (let attr in attrs) {
+					if (attr.startsWith("i18n") || attr.startsWith("no-i18n") ) {
+						element.removeAttr(attr);
+					}
 				}
 				return;
 			}
-			if (this.hasAttr(element, "i18n")) {
+			if (this.hasParentWithNoi18n(element)) {
+				return;
+			}
+			if ((this.hasAttr(element, "i18n") || this.extractTags.includes(element[0].name)) && !this.hasAttr(element, "no-i18n")) {
 				const elementText = this.normalizeText(element.html());
 				if (elementText === "") {
 					// valid state - element has no content, eg. <input>
@@ -69,7 +76,32 @@ class Translator {
 					this.translateAttr(file, element, attrName);
 				}
 			});
+
+			const attrs = element[0].attribs;
+			for (let attr in attrs) {
+				const value = attrs[attr];
+				if (attr.startsWith("i18n-")) {
+					const rest = attr.replace("i18n-", "");
+					if (this.hasAttr(element, rest)) {
+						this.translateAttr(file, element, rest);
+					}
+					element.removeAttr(attr);
+				}
+				if (attr.startsWith("no-i18n-")) {
+					const rest = attr.replace("no-i18n-", "");
+					if (this.hasAttr(element, rest)) {
+						element.removeAttr(rest);
+					}
+					element.removeAttr(attr);
+				}
+			}
+
 		});
+		$("*[no-i18n]").each((index, element) => {
+			element = $(element);
+			element.removeAttr("no-i18n");
+		});
+
 		return $.html();
 	}
 
@@ -121,10 +153,37 @@ class Translator {
 		return typeof attr !== typeof undefined && attr !== false;
 	}
 
+	parentHasAttr(parent, attrName) {
+		if (Object.keys(parent.attribs).length === 0) {
+			return false;
+		}
+		for (let attr in parent.attribs) {
+			if (attr == attrName) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	translateAttr(file, element, attrName) {
 		const attrText = element.attr(attrName);
-		const translatedText = this.getTranslatedText(file, attrText);
+		let translatedText = this.getTranslatedText(file, attrText);
+		translatedText = translatedText.replace("<br>", "&#xa;");
 		element.attr(attrName, translatedText);
+	}
+
+	hasParentWithNoi18n(element) {
+		const parents = element.parents();
+		if (parents.length == 0) {
+			return false;
+		}
+		let result = false;
+		parents.each((index, parent) => {
+			if (this.parentHasAttr(parent, "no-i18n")) {
+				result = true;
+			}
+		});
+		return result;
 	}
 }
 
@@ -149,3 +208,5 @@ module.exports = function(options) {
 		callback();
 	});
 };
+
+module.exports.Translator = Translator;
