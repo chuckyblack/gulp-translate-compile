@@ -49,8 +49,11 @@ class Translator {
 			element = $(element);
 			if (!this.path) {
 				// no translation file, remove marking attribut only
-				if (this.hasAttr(element, "i18n")) {
-					element.removeAttr("i18n");
+				const attrs = element[0].attribs;
+				for (let attr in attrs) {
+					if (attr.startsWith("i18n") || attr.startsWith("no-i18n") ) {
+						element.removeAttr(attr);
+					}
 				}
 				return;
 			}
