@@ -4,12 +4,11 @@ const pofile = require('pofile');
 const cheerio = require('cheerio');
 
 class Translator {
-	constructor(path, attributes, extractTags, throwOnMissingTranslation, throwOnEmptyTranslation) {
+	constructor(path, attributes, translatedTags, throwOnMissingTranslation) {
 		this.path = path;
 		this.attributes = attributes;
-		this.extractTags = extractTags;
+		this.translatedTags = translatedTags;
 		this.throwOnMissingTranslation = throwOnMissingTranslation;
-		this.throwOnEmptyTranslation = throwOnEmptyTranslation;
 		this.msgStrById = {};
 		if (path) {
 			this.loadPoFile(path);
@@ -60,7 +59,7 @@ class Translator {
 			if (this.hasParentWithNoi18n(element)) {
 				return;
 			}
-			if ((this.hasAttr(element, "i18n") || this.extractTags.includes(element[0].name)) && !this.hasAttr(element, "no-i18n")) {
+			if ((this.hasAttr(element, "i18n") || this.translatedTags.includes(element[0].name)) && !this.hasAttr(element, "no-i18n")) {
 				const elementText = this.normalizeText(element.html());
 				if (elementText === "") {
 					// valid state - element has no content, eg. <input>
@@ -121,10 +120,10 @@ class Translator {
 	getTranslatedText(file, original) {
 		const translatedText = this.msgStrById[original];
 		if (this.throwOnMissingTranslation && translatedText === undefined) {
-			throw this.getErrorMessage("Source string is missing", file, original, translatedText);
+			throw this.getErrorMessage("Missing translation", file, original, translatedText);
 		}
-		if (this.throwOnEmptyTranslation && translatedText === "") {
-			throw this.getErrorMessage("The text has empty translation", file, original, translatedText);
+		if (!translatedText) {
+			return original;
 		}
 		return translatedText;
 	}
@@ -195,8 +194,8 @@ module.exports = function(options) {
 	const translator = new Translator(
 		options.pofile,
 		options.attributes || [],
-		getDefault(options.throwOnMissingTranslation, true),
-		getDefault(options.throwOnEmptyTranslation, true)
+		options.translatedTags || [],
+		getDefault(options.throwOnMissingTranslation, true)
 	);
 
 	return through.obj(function(file, enc, callback) {

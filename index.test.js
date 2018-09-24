@@ -14,7 +14,12 @@ function wrapHtml(content) {
 	return '<html><head></head><body>' + content + '</body></html>'
 }
 
-const translator = new Translator("./test.po", ["placeholder", "data-title", "alt", "data-tooltip", "title"], ["p", "h1", "h2", "h3", "h4", "li"], true, true);
+const translator = new Translator(
+	"./test.po",
+	["placeholder", "data-title", "alt", "data-tooltip", "title"],
+	["p", "h1", "h2", "h3", "h4", "li"],
+	true
+);
 
 
 test('normalizeText', () => {
