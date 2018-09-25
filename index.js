@@ -142,7 +142,7 @@ class Translator {
 		return text
 			.replace("\n", " ")
 			.replace("\t", " ")
-			.replace(/\s+/g, ' ')
+			.replace(/[ ]+/g, ' ')
 			.replace("/>", ">")
 			.trim();
 	}

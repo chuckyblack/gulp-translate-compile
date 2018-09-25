@@ -1,12 +1,15 @@
 import {Translator} from "./index";
 const Vinyl = require('vinyl');
 
-function createVinyl(content) {
+function createVinyl(content, wrap=true) {
+	if (wrap) {
+		content = wrapHtml(content);
+	}
 	return new Vinyl({
 		cwd: '/',
 		base: '/',
 		path: '/test.html',
-		contents: new Buffer(wrapHtml(content))
+		contents: new Buffer(content)
 	});
 }
 
@@ -86,4 +89,9 @@ test('doNotExtractTag', () => {
 test('doNotExtractEntireDivBlock', () => {
 	const result = translator.translateHtml(createVinyl('<div no-i18n><h2>Nadpis 2</h2><h3 title="nějaký titulek">Nadpis 3</h3><p>ahoj světe!</p></div><p>ahoj světe!</p>'));
 	expect(result).toBe(wrapHtml('<div><h2>Nadpis 2</h2><h3 title="nějaký titulek">Nadpis 3</h3><p>ahoj světe!</p></div><p>hello world!</p>'));
+});
+
+test('jsStringWithNbsp', () => {
+	const result = translator.translateJs(createVinyl("_('Objednávka č. {{ vm.order.id }}')", false));
+	expect(result).toBe("'Order #{{ vm.order.id }}'");
 });
