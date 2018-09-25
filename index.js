@@ -140,8 +140,8 @@ class Translator {
 
 	normalizeText(text) {
 		return text
-			.replace("\n", " ")
-			.replace("\t", " ")
+			.replace(/\n/g, " ")
+			.replace(/\t/g, " ")
 			.replace(/[ ]+/g, ' ')
 			.replace("/>", ">")
 			.trim();
