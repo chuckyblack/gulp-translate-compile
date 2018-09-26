@@ -19,6 +19,7 @@ function wrapHtml(content) {
 
 const translator = new Translator(
 	"./test.po",
+	"en",
 	["placeholder", "data-title", "alt", "data-tooltip", "title"],
 	true
 );
@@ -84,6 +85,16 @@ test('doNotTranslateAttribute', () => {
 test('htmlWithNbsp', () => {
 	const result = translator.translateHtml(createVinyl('<div i18n>ahoj&nbsp;světe!</div>'));
 	expect(result).toBe(wrapHtml('<div>hello&nbsp;world!</div>'));
+});
+
+test('htmlLangReplace', () => {
+	const result = translator.translateHtml(createVinyl('<img src="/__LANG__/test.jpg">'));
+	expect(result).toBe(wrapHtml('<img src="/en/test.jpg">'));
+});
+
+test('jsLangReplace', () => {
+	const result = translator.translateJs(createVinyl("var lang = '__LANG__';", false));
+	expect(result).toBe("var lang = 'en';");
 });
 
 test('jsStringWithNbsp', () => {
