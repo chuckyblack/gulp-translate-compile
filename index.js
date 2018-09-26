@@ -4,9 +4,8 @@ const pofile = require('pofile');
 const cheerio = require('cheerio');
 
 class Translator {
-	constructor(path, language, translatedAttributes, throwOnMissingTranslation) {
+	constructor(path, translatedAttributes, throwOnMissingTranslation) {
 		this.path = path;
-		this.language = language;
 		this.translatedAttributes = translatedAttributes;
 		this.throwOnMissingTranslation = throwOnMissingTranslation;
 		this.msgStrById = {};
@@ -96,7 +95,7 @@ class Translator {
 			}
 		});
 
-		return this.replaceLang($.html());
+		return $.html();
 	}
 
 	translateJs(file) {
@@ -109,7 +108,7 @@ class Translator {
 				return char + text + char;
 			});
 		});
-		return this.replaceLang(content);
+		return content;
 	}
 
 	getTranslatedText(file, original) {
@@ -141,10 +140,6 @@ class Translator {
 			.replace(/[ ]+/g, ' ')
 			.replace(/\/>/g, ">")
 			.trim();
-	}
-
-	replaceLang(content) {
-		return content.replace(/__LANG__/g, this.language);
 	}
 
 	hasAttr(element, attrName) {
@@ -179,7 +174,6 @@ function getDefault(value, defaultValue) {
 module.exports = function(options) {
 	const translator = new Translator(
 		options.pofile,
-		options.language,
 		options.translatedAttributes || [],
 		options.translatedTags || [],
 		getDefault(options.throwOnMissingTranslation, true)
