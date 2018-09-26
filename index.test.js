@@ -66,11 +66,15 @@ test('attribute', () => {
 	expect(result).toBe(wrapHtml('<div some-attribute="some title">hello world!</div>'));
 });
 
-test('autoTranslateAttribute', () => {
-	const result = translator.translateHtml(createVinyl('<div title="nějaký titulek" i18n>ahoj světe!</div>'));
-	expect(result).toBe(wrapHtml('<div title="some title">hello world!</div>'));
+test('attributeWithNewline', () => {
+	const result = translator.translateHtml(createVinyl('<div title="nějaký&#xa;titulek" i18n>ahoj světe!</div>'));
+	expect(result).toBe(wrapHtml('<div title="some&#xa;title">hello world!</div>'));
 });
 
+test('autoTranslateDataAttribute', () => {
+	const result = translator.translateHtml(createVinyl('<div data-tooltip="nějaký titulek" i18n>ahoj světe!</div>'));
+	expect(result).toBe(wrapHtml('<div data-tooltip="some title">hello world!</div>'));
+});
 
 test('doNotTranslateAttribute', () => {
 	const result = translator.translateHtml(createVinyl('<div title="nějaký titulek" no-i18n-title i18n>ahoj světe!</div>'));

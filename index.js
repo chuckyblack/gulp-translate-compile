@@ -138,7 +138,7 @@ class Translator {
 			.replace(/\t/g, " ")
 			.replace(/ /g, "&nbsp;")  // non-breakable space
 			.replace(/[ ]+/g, ' ')
-			.replace("/>", ">")
+			.replace(/\/>/g, ">")
 			.trim();
 	}
 
@@ -161,8 +161,8 @@ class Translator {
 
 	translateAttr(file, element, attrName) {
 		const attrText = element.attr(attrName);
-		let translatedText = this.getTranslatedText(file, attrText);
-		translatedText = translatedText.replace("<br>", "&#xa;");
+		let translatedText = this.getTranslatedText(file, attrText.replace(/\n/g, "<br>"));
+		translatedText = translatedText.replace(/<br>/g, "&#xa;");
 		element.attr(attrName, translatedText);
 	}
 }

@@ -14,6 +14,9 @@ msgstr "Really hard to translate sentence."
 msgid "nějaký titulek"
 msgstr "some title"
 
+#: helloworld:9
+msgid "nějaký<br>titulek"
+msgstr "some<br>title"
 
 #: helloworld:9
 msgid "Nadpis 2"
