@@ -20,14 +20,13 @@ function wrapHtml(content) {
 const translator = new Translator(
 	"./test.po",
 	["placeholder", "data-title", "alt", "data-tooltip", "title"],
-	["p", "h1", "h2", "h3", "h4", "li"],
 	true
 );
 
 
 test('normalizeText', () => {
 	const t = new Translator(null, [], true, true);
-	const result = t.normalizeText("hello\n\t    world<br/>");
+	const result = t.normalizeHtml("hello\n\t    world<br/>");
 	expect(result).toBe("hello world<br>");
 });
 
@@ -38,9 +37,9 @@ test('simpleString', () => {
 });
 
 
-test('missingPoFile', () => {
+test('preserveOriginal', () => {
 	const translator = new Translator(null, ["placeholder", "data-title", "alt", "data-tooltip", "title"], ["p", "h1", "h2", "h3", "h4", "li"], true, true);
-	const result = translator.translateHtml(createVinyl('<div i18n>ahoj světe!</div><div no-i18n>ahoj světe!</div><div some-attribute="nějaký titulek" i18n-some-attribute i18n>ahoj světe!</div>'));
+	const result = translator.translateHtml(createVinyl('<div i18n>ahoj světe!</div><div>ahoj světe!</div><div some-attribute="nějaký titulek" i18n-some-attribute i18n>ahoj světe!</div>'));
 	expect(result).toBe(wrapHtml('<div>ahoj světe!</div><div>ahoj světe!</div><div some-attribute="nějaký titulek">ahoj světe!</div>'));
 });
 
@@ -67,28 +66,20 @@ test('attribute', () => {
 	expect(result).toBe(wrapHtml('<div some-attribute="some title">hello world!</div>'));
 });
 
-
-test('doNotExtractAttribute', () => {
-	const result = translator.translateHtml(createVinyl('<div title="nějaký titulek" no-i18n-title>ahoj světe!</div>'));
-	expect(result).toBe(wrapHtml('<div>ahoj světe!</div>'));
+test('autoTranslateAttribute', () => {
+	const result = translator.translateHtml(createVinyl('<div title="nějaký titulek" i18n>ahoj světe!</div>'));
+	expect(result).toBe(wrapHtml('<div title="some title">hello world!</div>'));
 });
 
 
-test('autoExtractTag', () => {
-	const result = translator.translateHtml(createVinyl('<h2>Nadpis 2</h2><h3>Nadpis 3</h3><p>ahoj světe!</p><p i18n="komentář pro překladatele">ahoj světe!</p>'));
-	expect(result).toBe(wrapHtml('<h2>Heading 2</h2><h3>Heading 3</h3><p>hello world!</p><p>hello world!</p>'));
+test('doNotTranslateAttribute', () => {
+	const result = translator.translateHtml(createVinyl('<div title="nějaký titulek" no-i18n-title i18n>ahoj světe!</div>'));
+	expect(result).toBe(wrapHtml('<div title="nějaký titulek">hello world!</div>'));
 });
 
-
-test('doNotExtractTag', () => {
-	const result = translator.translateHtml(createVinyl('<h2>Nadpis 2</h2><h3 no-i18n="komentář">Nadpis 3</h3><p>ahoj světe!</p><p i18n="komentář pro překladatele">ahoj světe!</p>'));
-	expect(result).toBe(wrapHtml('<h2>Heading 2</h2><h3>Nadpis 3</h3><p>hello world!</p><p>hello world!</p>'));
-});
-
-
-test('doNotExtractEntireDivBlock', () => {
-	const result = translator.translateHtml(createVinyl('<div no-i18n><h2>Nadpis 2</h2><h3 title="nějaký titulek">Nadpis 3</h3><p>ahoj světe!</p></div><p>ahoj světe!</p>'));
-	expect(result).toBe(wrapHtml('<div><h2>Nadpis 2</h2><h3 title="nějaký titulek">Nadpis 3</h3><p>ahoj světe!</p></div><p>hello world!</p>'));
+test('htmlWithNbsp', () => {
+	const result = translator.translateHtml(createVinyl('<div i18n>ahoj&nbsp;světe!</div>'));
+	expect(result).toBe(wrapHtml('<div>hello&nbsp;world!</div>'));
 });
 
 test('jsStringWithNbsp', () => {

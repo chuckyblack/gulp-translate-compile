@@ -4,10 +4,9 @@ const pofile = require('pofile');
 const cheerio = require('cheerio');
 
 class Translator {
-	constructor(path, attributes, translatedTags, throwOnMissingTranslation) {
+	constructor(path, translatedAttributes, throwOnMissingTranslation) {
 		this.path = path;
-		this.attributes = attributes;
-		this.translatedTags = translatedTags;
+		this.translatedAttributes = translatedAttributes;
 		this.throwOnMissingTranslation = throwOnMissingTranslation;
 		this.msgStrById = {};
 		if (path) {
@@ -50,17 +49,15 @@ class Translator {
 				// no translation file, remove marking attribut only
 				const attrs = element[0].attribs;
 				for (let attr in attrs) {
-					if (attr.startsWith("i18n") || attr.startsWith("no-i18n") ) {
+					if (attr.startsWith("i18n")) {
 						element.removeAttr(attr);
 					}
 				}
 				return;
 			}
-			if (this.hasParentWithNoi18n(element)) {
-				return;
-			}
-			if ((this.hasAttr(element, "i18n") || this.translatedTags.includes(element[0].name)) && !this.hasAttr(element, "no-i18n")) {
-				const elementText = this.normalizeText(element.html());
+			if (this.hasAttr(element, "i18n")) {
+				const html = element.html();
+				const elementText = this.normalizeHtml(html);
 				if (elementText === "") {
 					// valid state - element has no content, eg. <input>
 					return;
@@ -70,35 +67,32 @@ class Translator {
 				element.removeAttr("i18n");
 			}
 
-			this.attributes.forEach(attrName => {
-				if (this.hasAttr(element, attrName)) {
+			// automated translated attributes
+			this.translatedAttributes.forEach(attrName => {
+				const noI18nAttr = "no-i18n-" + attrName;
+				const noTranslate = this.hasAttr(element, noI18nAttr);
+
+				if (this.hasAttr(element, attrName) && !noTranslate) {
 					this.translateAttr(file, element, attrName);
+				}
+
+				if (noTranslate) {
+					element.removeAttr(noI18nAttr);
 				}
 			});
 
+			// translated attributes marked with i18n-{{ attrname }}
 			const attrs = element[0].attribs;
 			for (let attr in attrs) {
 				const value = attrs[attr];
 				if (attr.startsWith("i18n-")) {
-					const rest = attr.replace("i18n-", "");
-					if (this.hasAttr(element, rest)) {
-						this.translateAttr(file, element, rest);
-					}
-					element.removeAttr(attr);
-				}
-				if (attr.startsWith("no-i18n-")) {
-					const rest = attr.replace("no-i18n-", "");
-					if (this.hasAttr(element, rest)) {
-						element.removeAttr(rest);
+					const attrName = attr.replace("i18n-", "");
+					if (this.hasAttr(element, attrName) && !this.translatedAttributes.includes(attrName)) {
+						this.translateAttr(file, element, attrName);
 					}
 					element.removeAttr(attr);
 				}
 			}
-
-		});
-		$("*[no-i18n]").each((index, element) => {
-			element = $(element);
-			element.removeAttr("no-i18n");
 		});
 
 		return $.html();
@@ -109,7 +103,7 @@ class Translator {
 		["'", '"', "`"].forEach((char) => {
 			content = content.replace(new RegExp("_\\(\\s*" + char + "([^" + char + "\\\\]*(?:\\\\.[^" + char + "\\\\]*)*)" + char + "\\s*\\)", "g"), (match, text) => {
 				if (this.path) {
-					text = this.getTranslatedText(file, this.normalizeText(text))
+					text = this.getTranslatedText(file, text)
 				}
 				return char + text + char;
 			});
@@ -138,10 +132,11 @@ class Translator {
 		);
 	}
 
-	normalizeText(text) {
+	normalizeHtml(text) {
 		return text
 			.replace(/\n/g, " ")
 			.replace(/\t/g, " ")
+			.replace(/ /g, "&nbsp;")  // non-breakable space
 			.replace(/[ ]+/g, ' ')
 			.replace("/>", ">")
 			.trim();
@@ -170,20 +165,6 @@ class Translator {
 		translatedText = translatedText.replace("<br>", "&#xa;");
 		element.attr(attrName, translatedText);
 	}
-
-	hasParentWithNoi18n(element) {
-		const parents = element.parents();
-		if (parents.length == 0) {
-			return false;
-		}
-		let result = false;
-		parents.each((index, parent) => {
-			if (this.parentHasAttr(parent, "no-i18n")) {
-				result = true;
-			}
-		});
-		return result;
-	}
 }
 
 function getDefault(value, defaultValue) {
@@ -193,7 +174,7 @@ function getDefault(value, defaultValue) {
 module.exports = function(options) {
 	const translator = new Translator(
 		options.pofile,
-		options.attributes || [],
+		options.translatedAttributes || [],
 		options.translatedTags || [],
 		getDefault(options.throwOnMissingTranslation, true)
 	);

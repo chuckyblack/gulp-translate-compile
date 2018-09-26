@@ -28,5 +28,9 @@ msgstr "Heading 3"
 msgid "Objednávka č. {{ vm.order.id }}"
 msgstr "Order #{{ vm.order.id }}"
 
+#: helloworld:9
+msgid "ahoj&nbsp;světe!"
+msgstr "hello&nbsp;world!"
+
 
 
