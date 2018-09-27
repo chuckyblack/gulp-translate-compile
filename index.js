@@ -113,7 +113,7 @@ class Translator {
 
 	getTranslatedText(file, original) {
 		const translatedText = this.msgStrById[original];
-		if (this.throwOnMissingTranslation && translatedText === undefined) {
+		if (this.throwOnMissingTranslation && !translatedText) {
 			throw this.getErrorMessage("Missing translation", file, original, translatedText);
 		}
 		if (!translatedText) {
