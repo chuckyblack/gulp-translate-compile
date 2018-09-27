@@ -147,18 +147,6 @@ class Translator {
 		return typeof attr !== typeof undefined && attr !== false;
 	}
 
-	parentHasAttr(parent, attrName) {
-		if (Object.keys(parent.attribs).length === 0) {
-			return false;
-		}
-		for (let attr in parent.attribs) {
-			if (attr == attrName) {
-				return true;
-			}
-		}
-		return false;
-	}
-
 	translateAttr(file, element, attrName) {
 		const attrText = element.attr(attrName);
 		let translatedText = this.getTranslatedText(file, attrText.replace(/\n/g, "<br>"));
