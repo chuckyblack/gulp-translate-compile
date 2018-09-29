@@ -163,7 +163,6 @@ module.exports = function(options) {
 	const translator = new Translator(
 		options.pofile,
 		options.translatedAttributes || [],
-		options.translatedTags || [],
 		getDefault(options.throwOnMissingTranslation, true)
 	);
 
