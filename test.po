@@ -35,5 +35,13 @@ msgstr "Order #{{ vm.order.id }}"
 msgid "ahoj&nbsp;světe!"
 msgstr "hello&nbsp;world!"
 
+#: helloworld:9
+msgid "ahoj \"uvozovky\""
+msgstr "hello \"quotes\""
+
+#: helloworld:9
+msgid "jedna < dvě"
+msgstr "one &lt; two"
+
 
 

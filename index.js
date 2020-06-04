@@ -56,15 +56,7 @@ class Translator {
 				return;
 			}
 			if (this.hasAttr(element, "i18n")) {
-				const html = element.html();
-				const elementText = this.normalizeHtml(html);
-				if (elementText === "") {
-					// valid state - element has no content, eg. <input>
-					return;
-				}
-				const translatedText = this.getTranslatedText(file, elementText);
-				element.text(translatedText);
-				element.removeAttr("i18n");
+				this.translateElement(file, element);
 			}
 
 			// automated translated attributes
@@ -147,10 +139,26 @@ class Translator {
 		return typeof attr !== typeof undefined && attr !== false;
 	}
 
+	translateElement(file, element) {
+		const html = element.html();
+		const elementText = this.normalizeHtml(html);
+		if (elementText === "") {
+			// valid state - element has no content, eg. <input>
+			return;
+		}
+		let translatedText = this.getTranslatedText(file, elementText);
+		element.text(translatedText);
+		element.removeAttr("i18n");
+
+	}
+
 	translateAttr(file, element, attrName) {
 		const attrText = element.attr(attrName);
 		let translatedText = this.getTranslatedText(file, attrText.replace(/\n/g, "<br>"));
 		translatedText = translatedText.replace(/<br>/g, "&#xa;");
+		translatedText = translatedText.replace(/"/g, "&quot;");
+		translatedText = translatedText.replace(/</g, "&lt;");
+		translatedText = translatedText.replace(/>/g, "&gt;");
 		element.attr(attrName, translatedText);
 	}
 }

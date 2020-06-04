@@ -90,3 +90,43 @@ test('jsStringWithNbsp', () => {
 	const result = translator.translateJs(createVinyl("_('Objednávka č. {{ vm.order.id }}')", false));
 	expect(result).toBe("'Order #{{ vm.order.id }}'");
 });
+
+test('htmlWithQuote', () => {
+	const result = translator.translateHtml(createVinyl('<div i18n>ahoj "uvozovky"</div>'));
+	expect(result).toBe(wrapHtml('<div>hello "quotes"</div>'));
+});
+
+test('htmlWithQuoteEntity', () => {
+	const result = translator.translateHtml(createVinyl('<div i18n>ahoj &quot;uvozovky&quot;</div>'));
+	expect(result).toBe(wrapHtml('<div>hello "quotes"</div>'));
+});
+
+test('attributeWithQuote', () => {
+	const result = translator.translateHtml(createVinyl('<div title=\'ahoj "uvozovky"\'>test</div>'));
+	expect(result).toBe(wrapHtml('<div title="hello &quot;quotes&quot;">test</div>'));
+});
+
+test('attributeWithQuoteEntity', () => {
+	const result = translator.translateHtml(createVinyl('<div title="ahoj &quot;uvozovky&quot">test</div>'));
+	expect(result).toBe(wrapHtml('<div title="hello &quot;quotes&quot;">test</div>'));
+});
+
+test('attributeWithLt', () => {
+	const result = translator.translateHtml(createVinyl('<div title="jedna < dvě">test</div>'));
+	expect(result).toBe(wrapHtml('<div title="one &lt; two">test</div>'));
+});
+
+test('attributeWithLtEntity', () => {
+	const result = translator.translateHtml(createVinyl('<div title="jedna &lt; dvě">test</div>'));
+	expect(result).toBe(wrapHtml('<div title="one &lt; two">test</div>'));
+});
+
+test('htmlWithLt', () => {
+	const result = translator.translateHtml(createVinyl('<div i18n>jedna < dvě</div>'));
+	expect(result).toBe(wrapHtml('<div>one &lt; two</div>'));
+});
+
+test('htmlWithLtEntity', () => {
+	const result = translator.translateHtml(createVinyl('<div i18n>jedna &lt; dvě</div>'));
+	expect(result).toBe(wrapHtml('<div>one &lt; two</div>'));
+});
